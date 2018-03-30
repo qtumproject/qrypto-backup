@@ -1,0 +1,58 @@
+{
+  "name": "extension-name",
+  "scripts": {
+    "start": "yarn clean && yarn copy-static && yarn watch:all",
+    "build": "yarn clean && yarn copy-static && yarn build:all",
+    "build:all": "yarn build:background & yarn build:contentscript & yarn build:popup & yarn build:inpage",
+    "build:inpage": "parcel build src/inpage/index.ts -o inpage.js",
+    "build:popup": "parcel build src/popup/index.tsx -o popup.js --public-url='/'",
+    "build:contentscript": "parcel build src/contentscript.ts -o contentscript.js",
+    "build:background": "parcel build src/background.ts -o background.js",
+    "watch:all": "yarn watch:background & yarn watch:contentscript & yarn watch:popup & yarn watch:inpage & npm-watch & yarn css-types -w",
+    "watch:inpage": "parcel watch src/inpage/index.ts -o inpage.js",
+    "watch:popup": "parcel watch src/popup/index.tsx -o popup.js --public-url='/'",
+    "watch:contentscript": "parcel watch src/contentscript.ts -o contentscript.js",
+    "watch:background": "parcel watch src/background.ts -o background.js",
+    "copy-static": "cp -r static/ dist/",
+    "clean": "rm -rf dist",
+    "css-types": "tcm src",
+    "postinstall": "yarn css-types",
+    "precommit": "lint-staged"
+  },
+  "watch": {
+    "copy-static": {
+      "patterns": [
+        "static"
+      ],
+      "extensions": "*",
+      "quiet": false
+    }
+  },
+  "devDependencies": {
+    "@ceoimon/typed-css-modules": "^0.0.1",
+    "@types/bip39": "^2.4.0",
+    "@types/chrome": "^0.0.63",
+    "@types/ethereumjs-util": "^5.1.0",
+    "@types/react": "^16.0.41",
+    "@types/react-dom": "^16.0.4",
+    "husky": "^0.14.3",
+    "lint-staged": "^7.0.0",
+    "npm-watch": "^0.3.0",
+    "parcel-bundler": "^1.6.2",
+    "postcss-modules": "^1.1.0",
+    "tslint": "^5.9.1",
+    "typescript": "^2.7.2",
+    "web-ext-types": "^2.0.1"
+  },
+  "dependencies": {
+    "bip39": "^2.5.0",
+    "chrome-call": "^3.0.0",
+    "ethereumjs-util": "^5.1.5",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "wallet.ts": "^0.2.5"
+  },
+  "main": "src/app.tsx",
+  "version": "0.0.0",
+  "private": true
+}

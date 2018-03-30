@@ -1,0 +1,11 @@
+{
+  "ignore": [
+    "src/**/*.d.ts"
+  ],
+  "linters": {
+    "*.{ts,tsx}": [
+      "tslint --fix --project tsconfig.json",
+      "git add"
+    ]
+  }
+}
