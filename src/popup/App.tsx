@@ -1,6 +1,7 @@
 import * as React from 'react'
 
 import * as classes from './App.css'
+
 import { PORT_NAME } from '../constants'
 import HDWallet from '../HDWallet'
 

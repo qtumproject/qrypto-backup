@@ -1,32 +1,12 @@
 {
   "name": "extension-name",
   "scripts": {
-    "start": "yarn clean && yarn copy-static && yarn watch:all",
-    "build": "yarn clean && yarn copy-static && yarn build:all",
-    "build:all": "yarn build:background & yarn build:contentscript & yarn build:popup & yarn build:inpage",
-    "build:inpage": "parcel build src/inpage/index.ts -o inpage.js",
-    "build:popup": "parcel build src/popup/index.tsx -o popup.js --public-url='/'",
-    "build:contentscript": "parcel build src/contentscript.ts -o contentscript.js",
-    "build:background": "parcel build src/background.ts -o background.js",
-    "watch:all": "yarn watch:background & yarn watch:contentscript & yarn watch:popup & yarn watch:inpage & npm-watch & yarn css-types -w",
-    "watch:inpage": "parcel watch src/inpage/index.ts -o inpage.js",
-    "watch:popup": "parcel watch src/popup/index.tsx -o popup.js --public-url='/'",
-    "watch:contentscript": "parcel watch src/contentscript.ts -o contentscript.js",
-    "watch:background": "parcel watch src/background.ts -o background.js",
-    "copy-static": "cp -r static/ dist/",
+    "start": "yarn clean && mkdir dist && ./scripts/create-empty-thunk.sh && webpack --watch --devtool eval-cheap-module-source-map & yarn css-types -w",
+    "build": "yarn clean && webpack && ./scripts/create-empty-thunk.sh",
     "clean": "rm -rf dist",
     "css-types": "tcm src",
     "postinstall": "yarn css-types",
     "precommit": "lint-staged"
-  },
-  "watch": {
-    "copy-static": {
-      "patterns": [
-        "static"
-      ],
-      "extensions": "*",
-      "quiet": false
-    }
   },
   "devDependencies": {
     "@ceoimon/typed-css-modules": "^0.0.1",
@@ -35,14 +15,24 @@
     "@types/ethereumjs-util": "^5.1.0",
     "@types/react": "^16.0.41",
     "@types/react-dom": "^16.0.4",
+    "autoprefixer": "^8.2.0",
+    "copy-webpack-plugin": "^4.5.1",
+    "css-loader": "^0.28.11",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "file-loader": "^1.1.11",
     "husky": "^0.14.3",
     "lint-staged": "^7.0.0",
-    "npm-watch": "^0.3.0",
-    "parcel-bundler": "^1.6.2",
+    "postcss-flexbugs-fixes": "^3.3.0",
+    "postcss-loader": "^2.1.3",
     "postcss-modules": "^1.1.0",
+    "style-loader": "^0.20.3",
+    "ts-loader": "3.5.0",
     "tslint": "^5.9.1",
+    "tslint-loader": "^3.6.0",
     "typescript": "^2.7.2",
-    "web-ext-types": "^2.0.1"
+    "url-loader": "^1.0.1",
+    "web-ext-types": "^2.0.1",
+    "webpack": "3.11.0"
   },
   "dependencies": {
     "bip39": "^2.5.0",
@@ -52,7 +42,6 @@
     "react-dom": "^16.2.0",
     "wallet.ts": "^0.2.5"
   },
-  "main": "src/app.tsx",
   "version": "0.0.0",
   "private": true
 }

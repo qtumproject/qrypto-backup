@@ -1,4 +1,4 @@
-import { PORT_NAME } from './constants'
+import { PORT_NAME } from '../constants'
 
 chrome.runtime.onConnect.addListener((handleConnect))
 

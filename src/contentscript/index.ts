@@ -5,9 +5,10 @@ import {
   IExtensionAPIMessage,
   ISignMessageRequestPayload,
   ISignMessageResponsePayload,
-} from './types'
-import { TARGET_NAME, PORT_NAME, API_TYPE } from './constants'
-import HDWallet from './HDWallet'
+} from '../types'
+
+import { TARGET_NAME, PORT_NAME, API_TYPE } from '../constants'
+import HDWallet from '../HDWallet'
 
 injectScript(chrome.extension.getURL('inpage.js'))
 
