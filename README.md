@@ -1,4 +1,4 @@
-# Build Chrome Extension with React + Parcel + Typescript + Hot-Reloading
+# Build Chrome Extension with React + Webpack + Typescript + Hot-Reloading
 
 ## Development
 
