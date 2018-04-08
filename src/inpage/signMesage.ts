@@ -1,8 +1,8 @@
 import { API_TYPE } from '../constants'
 import { requestExtensionAPI } from './utils'
-import { ISignMessageRequestPayload, ISignMessageResponsePayload } from '../types'
+import { ISignMessageResponsePayload, ISignMessageRequestPayload } from '../types'
 
-export const processingSignRequests: { [id: string]: IProcessingSignRequest } = {}
+const processingSignRequests: { [id: string]: IProcessingSignRequest } = {}
 
 export function signMessage(message: string): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -10,7 +10,7 @@ export function signMessage(message: string): Promise<string> {
     processingSignRequests[id] = { resolve, reject }
 
     requestExtensionAPI<ISignMessageRequestPayload>({
-      type: API_TYPE.SIGN_MESSAGE,
+      type: API_TYPE.SIGN_MESSAGE_REQUEST,
       payload: { message, id },
     })
   })
@@ -21,6 +21,8 @@ export function handleSignMessageResponse(response: ISignMessageResponsePayload)
   if (!request) {
     return
   }
+
+  delete processingSignRequests[response.id]
 
   if (response.error != null) {
     request.reject(response.error)

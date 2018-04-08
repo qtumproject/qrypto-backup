@@ -13,4 +13,14 @@ code {
     monospace;
 }
 
-
+:global .container {
+  background-color: #282c34;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  padding: 1rem;
+}

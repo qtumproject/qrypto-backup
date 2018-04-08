@@ -44,7 +44,7 @@ module.exports = {
     path: path.join(__dirname, 'dist'),
     filename: '[name].js',
     // @see https://developer.chrome.com/extensions/manifest/web_accessible_resources
-    publicPath : 'chrome-extension://__MSG_@@extension_id__/bundle/',
+    publicPath : 'chrome-extension://__MSG_@@extension_id__/',
   },
   resolve: {
     extensions: [
@@ -116,74 +116,74 @@ module.exports = {
   },
   plugins: [
     new webpack.optimize.CommonsChunkPlugin({
-      name: 'commons0',
+      name: 'all',
       chunks: ['background', 'contentscript', 'popup', 'inpage'],
       minChunks: 4,
-      filename: 'commons.all.js'
+      filename: 'commons.[name].js'
     }),
 
     new webpack.optimize.CommonsChunkPlugin({
-      name: 'commons1',
+      name: 'exclude-background',
       chunks: ['contentscript', 'popup', 'inpage'],
       minChunks: 3,
-      filename: 'commons.exclude-background.js'
+      filename: 'commons.[name].js'
     }),
     new webpack.optimize.CommonsChunkPlugin({
-      name: 'commons2',
+      name: 'exclude-contentscript',
       chunks: ['background', 'popup', 'inpage'],
       minChunks: 3,
-      filename: 'commons.exclude-contentscript.js'
+      filename: 'commons.[name].js'
     }),
     new webpack.optimize.CommonsChunkPlugin({
-      name: 'commons3',
+      name: 'exclude-popup',
       chunks: ['background', 'contentscript', 'inpage'],
       minChunks: 3,
-      filename: 'commons.exclude-popup.js'
+      filename: 'commons.[name].js'
     }),
     new webpack.optimize.CommonsChunkPlugin({
-      name: 'commons4',
+      name: 'exclude-inpage',
       chunks: ['background', 'contentscript', 'popup'],
       minChunks: 3,
-      filename: 'commons.exclude-inpage.js'
+      filename: 'commons.[name].js'
     }),
 
     new webpack.optimize.CommonsChunkPlugin({
-      name: 'commons5',
+      name: 'background-contentscript',
       chunks: ['background', 'contentscript'],
       minChunks: 2,
-      filename: 'commons.background-contentscript.js'
+      filename: 'commons.[name].js'
     }),
     new webpack.optimize.CommonsChunkPlugin({
-      name: 'commons6',
+      name: 'background-popup',
       chunks: ['background', 'popup'],
       minChunks: 2,
-      filename: 'commons.background-popup.js'
+      filename: 'commons.[name].js'
     }),
     new webpack.optimize.CommonsChunkPlugin({
-      name: 'commons7',
+      name: 'background-inpage',
       chunks: ['background', 'inpage'],
       minChunks: 2,
-      filename: 'commons.background-inpage.js'
+      filename: 'commons.[name].js'
     }),
 
     new webpack.optimize.CommonsChunkPlugin({
-      name: 'commons8',
+      name: 'contentscript-popup',
       chunks: ['contentscript', 'popup'],
       minChunks: 2,
-      filename: 'commons.contentscript-popup.js'
+      filename: 'commons.[name].js'
     }),
     new webpack.optimize.CommonsChunkPlugin({
-      name: 'commons9',
+      name: 'contentscript-inpage',
       chunks: ['contentscript', 'inpage'],
       minChunks: 2,
-      filename: 'commons.contentscript-inpage.js'
+      filename: 'commons.[name].js'
     }),
 
     new webpack.optimize.CommonsChunkPlugin({
-      name: 'commons10',
+      name: 'popup-inpage',
       chunks: ['popup', 'inpage'],
       minChunks: 2,
-      filename: 'commons.popup-inpage.js'
+      filename: 'commons.[name].js'
     }),
 
     new ExtractTextPlugin({

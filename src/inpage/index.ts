@@ -1,8 +1,4 @@
-import {
-  IExtensionMessageData,
-  IExtensionAPIMessage,
-  IExtensionState,
-} from '../types'
+import { IExtensionMessageData, IExtensionAPIMessage } from '../types'
 import { TARGET_NAME, API_TYPE } from '../constants'
 import { signMessage, handleSignMessageResponse } from './signMesage'
 
@@ -31,19 +27,10 @@ function handleContentScriptMessage(event: MessageEvent) {
 
   const message: IExtensionAPIMessage<any> = data.message
   switch (message.type) {
-    case API_TYPE.SYNC_STATE:
-      handleSyncState(message.payload)
-      return
-    case API_TYPE.SIGN_MESSAGE:
+    case API_TYPE.SIGN_MESSAGE_RESPONSE:
       handleSignMessageResponse(message.payload)
       return
     default:
       console.log('receive unknown type message from contentscript:', data.message)
   }
-}
-
-function handleSyncState(state: IExtensionState) {
-  Object.assign(window, {
-    myExtensionState: state,
-  })
 }

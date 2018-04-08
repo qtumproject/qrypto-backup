@@ -10,7 +10,15 @@ import {
 import { TARGET_NAME, PORT_NAME, API_TYPE } from '../constants'
 import HDWallet from '../HDWallet'
 
-injectScript(chrome.extension.getURL('inpage.js'))
+injectScript(chrome.extension.getURL('commons.all.js')).then(async () => {
+  await injectScript(chrome.extension.getURL('commons.exclude-background.js'))
+  await injectScript(chrome.extension.getURL('commons.exclude-contentscript.js'))
+  await injectScript(chrome.extension.getURL('commons.exclude-popup.js'))
+  await injectScript(chrome.extension.getURL('commons.background-inpage.js'))
+  await injectScript(chrome.extension.getURL('commons.contentscript-inpage.js'))
+  await injectScript(chrome.extension.getURL('commons.popup-inpage.js'))
+  await injectScript(chrome.extension.getURL('inpage.js'))
+})
 
 window.addEventListener('message', handleWebPageMessage, false)
 
@@ -18,20 +26,20 @@ const port = chrome.runtime.connect({ name: PORT_NAME.CONTENTSCRIPT })
 port.onMessage.addListener(responseExtensionAPI)
 
 function injectScript(src: string) {
-  const scriptElement = document.createElement('script')
-  const headOrDocumentElement = document.head || document.documentElement
+  return new Promise((resolve) => {
+    const scriptElement = document.createElement('script')
+    const headOrDocumentElement = document.head || document.documentElement
 
-  scriptElement.onload = function onScriptLoad() {
-    if (this.parentNode == null) {
-      return
+    scriptElement.onload = function onScriptLoad() {
+      resolve()
+
+      if (this.parentNode != null) {
+        // this.parentNode.removeChild(this)
+      }
     }
-
-    // syncState()
-
-    this.parentNode.removeChild(this)
-  }
-  scriptElement.src = src
-  headOrDocumentElement.insertAdjacentElement('afterbegin', scriptElement)
+    scriptElement.src = src
+    headOrDocumentElement.insertAdjacentElement('afterbegin', scriptElement)
+  })
 }
 
 const origin = location.origin
@@ -50,7 +58,7 @@ function handleWebPageMessage(event: MessageEvent) {
 
   const message: IExtensionAPIMessage<any> = data.message
   switch (message.type) {
-    case API_TYPE.SIGN_MESSAGE:
+    case API_TYPE.SIGN_MESSAGE_REQUEST:
       handleSignMessage(message.payload)
       return
     default:
@@ -76,7 +84,7 @@ async function handleSignMessage(message: ISignMessageRequestPayload) {
 
   if (mnemonic == null) {
     responseExtensionAPI<ISignMessageResponsePayload>({
-      type: API_TYPE.SIGN_MESSAGE,
+      type: API_TYPE.SIGN_MESSAGE_RESPONSE,
       payload: {
         id: message.id,
         error: 'cannot find mnemonic',
@@ -88,20 +96,10 @@ async function handleSignMessage(message: ISignMessageRequestPayload) {
   const wallet = new HDWallet(mnemonic)
   const signature = wallet.signMessage(message.message)
   responseExtensionAPI<ISignMessageResponsePayload>({
-    type: API_TYPE.SIGN_MESSAGE,
+    type: API_TYPE.SIGN_MESSAGE_RESPONSE,
     payload: {
       id: message.id,
       signature,
     },
   })
 }
-
-// function syncState() {
-//   chrome.storage.sync.get('mnemonic', (storage) => {
-//     const mnemonic: string = storage.mnemonic
-//     responseExtensionAPI<IExtensionState>({
-//       type: API_TYPE.SYNC_STATE,
-//       payload: { mnemonic },
-//     })
-//   })
-// }

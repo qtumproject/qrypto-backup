@@ -38,6 +38,7 @@
     "bip39": "^2.5.0",
     "chrome-call": "^3.0.0",
     "ethereumjs-util": "^5.1.5",
+    "ethers": "^3.0.8",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "wallet.ts": "^0.2.5"

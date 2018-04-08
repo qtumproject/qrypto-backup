@@ -1,26 +1,21 @@
 import * as React from 'react'
 
-import * as classes from './App.css'
+import SendEther from './pages/sendEther'
 
-import { PORT_NAME } from '../constants'
 import HDWallet from '../HDWallet'
 
-const port = chrome.runtime.connect({ name: PORT_NAME.POPUP })
-port.onMessage.addListener(handleBackgroundMessage)
-function handleBackgroundMessage(message: any) {
-  console.log('from background:', message)
-}
+import { utils } from 'ethers'
+import { getBalance } from '../getBalance'
 
 let storageMnemonic: string = ''
-let addresses: string[] = []
+let storageWallet: HDWallet
 chrome.storage.local.get('mnemonic', ({ mnemonic }) => {
   if (mnemonic == null) {
     return
   }
 
   storageMnemonic = mnemonic
-  const wallet = new HDWallet(mnemonic)
-  addresses = wallet.addresses
+  storageWallet = new HDWallet(mnemonic)
 })
 
 class App extends React.Component<IProps, IState> {
@@ -30,7 +25,8 @@ class App extends React.Component<IProps, IState> {
 
     this.state = {
       mnemonic: storageMnemonic,
-      addresses,
+      wallet: storageWallet,
+      balances: {},
     }
   }
 
@@ -46,7 +42,7 @@ class App extends React.Component<IProps, IState> {
 
       const wallet = new HDWallet(mnemonic)
 
-      this.setState({ mnemonic, addresses: wallet.addresses })
+      this.setState({ mnemonic, wallet })
     })
   }
 
@@ -56,11 +52,29 @@ class App extends React.Component<IProps, IState> {
 
   public render() {
     const { state } = this
+    const { page, usingAddress, wallet, balances } = state
+    if (page != null) {
+      switch (page) {
+        case 'sendEther':
+          if (usingAddress == null || wallet == null || balances[usingAddress] == null) {
+            throw new Error('cannot render sendEther page')
+          }
+          return (
+            <SendEther
+              address={usingAddress}
+              port={this.props.port}
+              hdWallet={wallet}
+              balance={balances[usingAddress]}
+            />
+          )
+
+        default:
+      }
+    }
+
     return (
-      <div className={classes.container}>
-        {state.addresses.map((address) => (
-          <p key={address}>{address}</p>
-        ))}
+      <div className={'container'}>
+        {this.renderAccounts()}
         <input type="text" onChange={this.handleInputChange} value={state.mnemonic} />
         <button onClick={this.handleRecover}>
           recover
@@ -72,6 +86,58 @@ class App extends React.Component<IProps, IState> {
     )
   }
 
+  private renderAccounts() {
+    const { wallet } = this.state
+    if (wallet == null) {
+      return null
+    }
+
+    return (
+      wallet.addresses.map((address) => (
+        <div key={address}>
+          {address}
+          {' '}
+          {this.renderBalance(address)}
+        </div>
+      ))
+    )
+  }
+
+  private renderBalance(address: string) {
+    const balance = this.state.balances[address]
+    if (this.state.balances[address] == null) {
+      this.fetchBalance(address)
+      return
+    }
+
+    const balanceStr = utils.formatEther(utils.bigNumberify(balance))
+    const [intergerPart, decimalPart] = balanceStr.split('.')
+
+    return (
+      <>
+        <span>
+          Balance: {intergerPart}{decimalPart == null ? null : `.${decimalPart.slice(0, 3)}`}
+        </span>
+        <button onClick={() => this.handleSend(address)}>
+          Transfer
+        </button>
+      </>
+    )
+  }
+
+  private async fetchBalance(address: string) {
+    const balance = await getBalance(this.props.port, address)
+    if (this.hasUnmounted) {
+      return
+    }
+
+    this.setState(({ balances }) => ({
+      balances: Object.assign(balances, {
+        [address]: balance,
+      }),
+    }))
+  }
+
   private handleInputChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
     this.setState({ mnemonic: event.target.value })
   }
@@ -80,10 +146,9 @@ class App extends React.Component<IProps, IState> {
     const { mnemonic } = this.state
 
     try {
-      // tslint:disable-next-line
       const wallet = new HDWallet(mnemonic)
       chrome.storage.local.set({ mnemonic })
-      this.setState({ addresses: wallet.addresses })
+      this.setState({ wallet })
     } catch (err) {
       console.log('cannot set mnemonic', err)
     }
@@ -91,16 +156,27 @@ class App extends React.Component<IProps, IState> {
 
   private handleReset: React.MouseEventHandler<HTMLButtonElement> = () => {
     chrome.storage.local.remove('mnemonic')
-    this.setState({ mnemonic: '', addresses: [] })
+    this.setState({ mnemonic: '', wallet: undefined })
+  }
+
+  private handleSend = (address: string) => {
+    this.setState({
+      page: 'sendEther',
+      usingAddress: address,
+    })
   }
 }
 
 interface IProps {
+  port: chrome.runtime.Port
 }
 
 interface IState {
   mnemonic: string
-  addresses: string[]
+  balances: { [address: string]: string }
+  wallet?: HDWallet
+  page?: string
+  usingAddress?: string
 }
 
 export default App
