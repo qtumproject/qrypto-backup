@@ -51,8 +51,8 @@ class App extends React.Component<IProps, IState> {
   }
 
   public render() {
-    const { state } = this
-    const { page, usingAddress, wallet, balances } = state
+    const { page, usingAddress, wallet, balances, mnemonic } = this.state
+
     if (page != null) {
       switch (page) {
         case 'sendEther':
@@ -75,7 +75,7 @@ class App extends React.Component<IProps, IState> {
     return (
       <div className={'container'}>
         {this.renderAccounts()}
-        <input type="text" onChange={this.handleInputChange} value={state.mnemonic} />
+        <input type="text" onChange={this.handleInputChange} value={mnemonic} />
         <button onClick={this.handleRecover}>
           recover
         </button>

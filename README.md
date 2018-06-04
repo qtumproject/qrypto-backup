@@ -16,7 +16,7 @@ yarn start
 
 Install the unpacked extension:
 
-See [Getting Started Tutorial](https://developer.chrome.com/extensions/getstarted)
+See [Getting Started Tutorial](https://developer.chrome.com/extensions/getstarted#manifest)
 
 ## Build
 
