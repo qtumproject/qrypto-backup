@@ -1,22 +1,28 @@
 import * as React from 'react'
+import { networks, Wallet } from 'qtumjs-wallet'
 
-import SendEther from './pages/sendEther'
+// import SendEther from './pages/sendEther'
 
-import HDWallet from '../HDWallet'
+// import HDWallet from '../HDWallet'
 
-import { utils } from 'ethers'
-import { getBalance } from '../getBalance'
+// import { utils } from 'ethers'
+// import { getBalance } from '../getBalance'
 
 let storageMnemonic: string = ''
-let storageWallet: HDWallet
+// let storageWallet: HDWallet
 chrome.storage.local.get('mnemonic', ({ mnemonic }) => {
   if (mnemonic == null) {
     return
   }
 
   storageMnemonic = mnemonic
-  storageWallet = new HDWallet(mnemonic)
+  // storageWallet = new HDWallet(mnemonic)
 })
+
+function recoverWallet(mnemonic: string): Wallet {
+  const network = networks.testnet
+  return network.fromMnemonic(mnemonic)
+}
 
 class App extends React.Component<IProps, IState> {
   private hasUnmounted = false
@@ -24,66 +30,91 @@ class App extends React.Component<IProps, IState> {
     super(props)
 
     this.state = {
-      mnemonic: storageMnemonic,
-      wallet: storageWallet,
-      balances: {},
+      mnemonic: '',
+      // wallet: undefined,
+      // balances: {},
     }
   }
 
   public componentDidMount() {
-    if (this.state.mnemonic !== '') {
-      return
-    }
+    // if (this.state.mnemonic !== '') {
+    //   return
+    // }
 
-    chrome.storage.local.get('mnemonic', ({ mnemonic }) => {
-      if (mnemonic == null || this.hasUnmounted) {
-        return
-      }
+    // chrome.storage.local.get('mnemonic', ({ mnemonic }) => {
+    //   if (mnemonic == null || this.hasUnmounted) {
+    //     return
+    //   }
 
-      const wallet = new HDWallet(mnemonic)
+    //   const wallet = new HDWallet(mnemonic)
 
-      this.setState({ mnemonic, wallet })
-    })
+    //   this.setState({ mnemonic, wallet })
+    // })
   }
 
-  public componentWillUnmount() {
-    this.hasUnmounted = true
+  // public componentWillUnmount() {
+  //   this.hasUnmounted = true
+  // }
+
+  public renderWallet() {
+    const wallet = this.state.wallet!
+
+    // if(wallet) {
+    //   wallet.
+    // }
+    return (
+      <div>{wallet.address}</div>
+    )
   }
 
   public render() {
-    const { page, usingAddress, wallet, balances, mnemonic } = this.state
+    // const mnemonic = 'foobar'
 
-    if (page != null) {
-      switch (page) {
-        case 'sendEther':
-          if (usingAddress == null || wallet == null || balances[usingAddress] == null) {
-            throw new Error('cannot render sendEther page')
-          }
-          return (
-            <SendEther
-              address={usingAddress}
-              port={this.props.port}
-              hdWallet={wallet}
-              balance={balances[usingAddress]}
-            />
-          )
-
-        default:
-      }
-    }
+    const { mnemonic, wallet } = this.state
 
     return (
-      <div className={'container'}>
-        {this.renderAccounts()}
+      <div>
         <input type="text" onChange={this.handleInputChange} value={mnemonic} />
         <button onClick={this.handleRecover}>
-          recover
+          create wallet
         </button>
-        <button onClick={this.handleReset}>
-          reset
-        </button>
+
+        {wallet && this.renderWallet()}
       </div>
     )
+    // const { page, usingAddress, wallet, balances, mnemonic } = this.state
+
+    // if (page != null) {
+    //   switch (page) {
+    //     case 'sendEther':
+    //       if (usingAddress == null || wallet == null || balances[usingAddress] == null) {
+    //         throw new Error('cannot render sendEther page')
+    //       }
+    //       return (
+    //         <SendEther
+    //           address={usingAddress}
+    //           port={this.props.port}
+    //           hdWallet={wallet}
+    //           balance={balances[usingAddress]}
+    //         />
+    //       )
+
+    //     default:
+    //   }
+    // }
+
+    // return (
+    //   <div className={'container'}>
+    //     {this.renderAccounts()}
+    //     <input type="text" onChange={this.handleInputChange} value={mnemonic} />
+    //     <button onClick={this.handleRecover}>
+    //       recover
+    //     </button>
+    //     <button onClick={this.handleReset}>
+    //       reset
+    //     </button>
+    //   </div>
+    // )
   }
 
   private renderAccounts() {
@@ -146,8 +177,9 @@ class App extends React.Component<IProps, IState> {
     const { mnemonic } = this.state
 
     try {
-      const wallet = new HDWallet(mnemonic)
-      chrome.storage.local.set({ mnemonic })
+      // const wallet = new HDWallet(mnemonic)
+      const wallet = recoverWallet(mnemonic)
+      // chrome.storage.local.set({ mnemonic })
       this.setState({ wallet })
     } catch (err) {
       console.log('cannot set mnemonic', err)
@@ -173,10 +205,10 @@ interface IProps {
 
 interface IState {
   mnemonic: string
-  balances: { [address: string]: string }
-  wallet?: HDWallet
-  page?: string
-  usingAddress?: string
+  // balances: { [address: string]: string }
+  wallet?: Wallet
+  // page?: string
+  // usingAddress?: string
 }
 
 export default App
