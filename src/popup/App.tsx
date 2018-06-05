@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { networks, Wallet } from 'qtumjs-wallet'
+import { networks, Wallet, Insight} from 'qtumjs-wallet'
 
 // import SendEther from './pages/sendEther'
 
@@ -30,9 +30,11 @@ class App extends React.Component<IProps, IState> {
     super(props)
 
     this.state = {
-      mnemonic: '',
+      mnemonic: 'hold struggle ready lonely august napkin enforce retire pipe where avoid drip',
+      amount: 0
       // wallet: undefined,
       // balances: {},
+      tip: ''
     }
   }
 
@@ -56,21 +58,91 @@ class App extends React.Component<IProps, IState> {
   //   this.hasUnmounted = true
   // }
 
-  public renderWallet() {
-    const wallet = this.state.wallet!
+  private async getWalletInfo(wallet: Wallet) {
+    const info = await wallet.getInfo()
+    this.setState({wallet, info, tip: ''});
+  }
 
+  public renderWallet() {
+    const {info, tip} = this.state;
     // if(wallet) {
     //   wallet.
     // }
     return (
-      <div>{wallet.address}</div>
+      <div>
+        {info && this.renderInfo()}
+        {tip && this.renderTip()}
+      </div>
     )
+  }
+
+  public renderInfo() {
+    const info = this.state.info!;
+    const { amount, receiver } = this.state;
+
+    return (
+      <div>
+        <p>Address: {info.addrStr}</p>
+        <p>
+          Balance: {info.balance} QTUM
+          <button onClick={this.handleRefresh}>Refresh</button>
+        </p>
+        <p>Pending txs: {info.unconfirmedTxApperances}</p>
+        <p>Send to address:</p>
+        <input type="text" onChange={this.handleReceiverChange} value={receiver}/>
+        <p>Amount:</p>
+        <input type="number" onChange={this.handleAmountChange} value={amount} />
+        <button onClick={this.handleSendTo} disabled={!(amount && receiver)}>send!</button>
+      </div>
+    );
+  }
+
+  public renderTip() {
+    const tip = this.state.tip!
+
+    return (
+      <p>{tip}</p>
+    )
+  }
+
+  private handleAmountChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+    const value = event.target.value
+    this.setState({ amount: value ? parseFloat(value) : 0 })
+  }
+
+  private handleReceiverChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+    this.setState({ receiver: event.target.value })
+  }
+
+  private handleRefresh = () => {
+    const wallet = this.state.wallet!
+    this.setState({ tip: 'refreshing balance...' })
+    this.getWalletInfo(wallet)
+  }
+
+  private async handleSendTo = () => {
+    this.setState({ tip: 'sending...'});
+
+    const { receiver, amount } = this.state
+    
+    const wallet = this.state.wallet!
+
+    const tx = wallet.send(receiver, amount * 1e8, {
+      feeRate: 400
+    })
+
+    this.setState({ tip: 'done' })
+    
+    tx.catch(err => {
+      console.log(err)
+      this.setState({ tip: err.message })
+    })
   }
 
   public render() {
     // const mnemonic = 'foobar'
 
-    const { mnemonic, wallet } = this.state
+    const { mnemonic, wallet, info } = this.state
 
     return (
       <div>
@@ -174,13 +246,15 @@ class App extends React.Component<IProps, IState> {
   }
 
   private handleRecover: React.MouseEventHandler<HTMLButtonElement> = () => {
+    this.setState({ wallet: undefined, receiver: '', amount: 0, tip: '' })
+
     const { mnemonic } = this.state
 
     try {
       // const wallet = new HDWallet(mnemonic)
       const wallet = recoverWallet(mnemonic)
       // chrome.storage.local.set({ mnemonic })
-      this.setState({ wallet })
+      this.getWalletInfo(wallet)
     } catch (err) {
       console.log('cannot set mnemonic', err)
     }
@@ -207,6 +281,10 @@ interface IState {
   mnemonic: string
   // balances: { [address: string]: string }
   wallet?: Wallet
+  info?: Insight.IGetInfo
+  receiver: string
+  amount: number
+  tip: string
   // page?: string
   // usingAddress?: string
 }
