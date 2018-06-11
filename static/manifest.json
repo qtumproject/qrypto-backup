@@ -56,5 +56,8 @@
     "commons.contentscript-inpage.js",
     "commons.popup-inpage.js",
     "inpage.js"
-  ]
+  ],
+  "externally_connectable": {
+    "ids": ["*"]
+  }
 }

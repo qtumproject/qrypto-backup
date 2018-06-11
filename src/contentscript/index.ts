@@ -5,10 +5,13 @@ import {
   IExtensionAPIMessage,
   ISignMessageRequestPayload,
   ISignMessageResponsePayload,
+  ISendQtumRequestPayload,
+  ISendQtumResponsePayload
 } from '../types'
 
 import { TARGET_NAME, PORT_NAME, API_TYPE } from '../constants'
 import HDWallet from '../HDWallet'
+import { networks, Wallet, Insight} from 'qtumjs-wallet'
 
 injectScript(chrome.extension.getURL('commons.all.js')).then(async () => {
   await injectScript(chrome.extension.getURL('commons.exclude-background.js'))
@@ -61,6 +64,9 @@ function handleWebPageMessage(event: MessageEvent) {
     case API_TYPE.SIGN_MESSAGE_REQUEST:
       handleSignMessage(message.payload)
       return
+    case API_TYPE.SEND_QTUM_REQUEST:
+      handleSendQtumMessage(message.payload)
+      return
     default:
       console.log('receive unknown type message from contentscript:', data.message)
   }
@@ -101,5 +107,40 @@ async function handleSignMessage(message: ISignMessageRequestPayload) {
       id: message.id,
       signature,
     },
+  })
+}
+
+function recoverWallet(mnemonic: string): Wallet {
+  const network = networks.testnet
+  return network.fromMnemonic(mnemonic)
+}
+
+async function handleSendQtumMessage(message: ISendQtumRequestPayload) {
+  const storage: { mnemonic: string } = await chromeCall(chrome.storage.local, 'get', 'mnemonic')
+  const { mnemonic } = storage
+
+  if (mnemonic == null) {
+    responseExtensionAPI<ISendQtumResponsePayload>({
+      type: API_TYPE.SEND_QTUM_RESPONSET,
+      payload: {
+        id: message.id,
+        error: 'cannot find mnemonic',
+      },
+    })
+    return
+  }
+
+  const wallet = recoverWallet(mnemonic)
+  const { address, amount } = message
+  const result = await wallet.send(address, amount * 1e8, {
+    feeRate: 400
+  })
+  
+  responseExtensionAPI<ISendQtumResponsePayload>({
+    type: API_TYPE.SEND_QTUM_RESPONSET,
+    payload: {
+      id: message.id,
+      result
+    }
   })
 }
