@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { networks, Wallet, Insight} from 'qtumjs-wallet'
 
-
 function recoverWallet(mnemonic: string): Wallet {
   const network = networks.testnet
   return network.fromMnemonic(mnemonic)
@@ -13,19 +12,33 @@ class App extends React.Component<IProps, IState> {
     super(props)
 
     this.state = {
-      mnemonic: 'hold struggle ready lonely august napkin enforce retire pipe where avoid drip',
+      mnemonic: '',
       amount: 0,
+      receiver: '',
       tip: ''
     }
   }
 
   public componentDidMount() {
-    
+    if (!!this.state.mnemonic) {
+      return
+    }
+
+    chrome.storage.local.get('mnemonic', ({ mnemonic }) => {
+      if (mnemonic == null) {
+        return
+      }
+
+      const wallet = recoverWallet(mnemonic)
+      this.setState({ mnemonic, wallet })
+      this.getWalletInfo()
+    })
   }
 
-  private async getWalletInfo(wallet: Wallet) {
+  private async getWalletInfo() {
+    const wallet = this.state.wallet!
     const info = await wallet.getInfo()
-    this.setState({wallet, info, tip: ''});
+    this.setState({info, tip: ''})
   }
 
   public renderWallet() {
@@ -78,9 +91,8 @@ class App extends React.Component<IProps, IState> {
   }
 
   private handleRefresh = () => {
-    const wallet = this.state.wallet!
     this.setState({ tip: 'refreshing balance...' })
-    this.getWalletInfo(wallet)
+    this.getWalletInfo()
   }
 
   private handleSendTo =  async () => {
@@ -130,7 +142,9 @@ class App extends React.Component<IProps, IState> {
 
     try {
       const wallet = recoverWallet(mnemonic)
-      this.getWalletInfo(wallet)
+      chrome.storage.local.set({ mnemonic })
+      this.setState({wallet})
+      this.getWalletInfo()
     } catch (err) {
       console.log('cannot set mnemonic', err)
     }
