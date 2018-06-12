@@ -4,7 +4,7 @@ import {
   IExtensionMessageData,
   IExtensionAPIMessage,
   ISendQtumRequestPayload,
-  ISendQtumResponsePayload
+  ISendQtumResponsePayload,
 } from '../types'
 
 import { TARGET_NAME, PORT_NAME, API_TYPE } from '../constants'
@@ -94,13 +94,13 @@ async function handleSendQtumMessage(message: ISendQtumRequestPayload) {
   const wallet = recoverWallet(mnemonic)
   const { address, amount } = message
   const result = await wallet.send(address, amount * 1e8, {
-    feeRate: 400
+    feeRate: 400,
   })
-  
+
   responseExtensionAPI<ISendQtumResponsePayload>({
     type: API_TYPE.SEND_QTUM_RESPONSET,
     payload: {
-      id: message.id, result
-    }
+      id: message.id, result,
+    },
   })
 }

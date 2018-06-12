@@ -15,7 +15,7 @@ class App extends React.Component<IProps, IState> {
       mnemonic: '',
       amount: 0,
       receiver: '',
-      tip: ''
+      tip: '',
     }
   }
 
@@ -35,14 +35,24 @@ class App extends React.Component<IProps, IState> {
     })
   }
 
-  private async getWalletInfo() {
-    const wallet = this.state.wallet!
-    const info = await wallet.getInfo()
-    this.setState({info, tip: ''})
+  public render() {
+
+    const { mnemonic, wallet } = this.state
+
+    return (
+      <div>
+        <input type="text" onChange={this.handleInputChange} value={mnemonic} />
+        <button onClick={this.handleRecover}>
+          create wallet
+        </button>
+
+        {wallet && this.renderWallet()}
+      </div>
+    )
   }
 
   public renderWallet() {
-    const {info, tip} = this.state;
+    const {info, tip} = this.state
 
     return (
       <div>
@@ -53,8 +63,8 @@ class App extends React.Component<IProps, IState> {
   }
 
   public renderInfo() {
-    const info = this.state.info!;
-    const { amount, receiver } = this.state;
+    const info = this.state.info!
+    const { amount, receiver } = this.state
 
     return (
       <div>
@@ -70,7 +80,7 @@ class App extends React.Component<IProps, IState> {
         <input type="number" onChange={this.handleAmountChange} value={amount} />
         <button onClick={this.handleSendTo} disabled={!(amount && receiver)}>send!</button>
       </div>
-    );
+    )
   }
 
   public renderTip() {
@@ -96,17 +106,17 @@ class App extends React.Component<IProps, IState> {
   }
 
   private handleSendTo =  async () => {
-    this.setState({ tip: 'sending...'});
+    this.setState({ tip: 'sending...'})
 
     const { receiver, amount } = this.state
-    
+
     const wallet = this.state.wallet!
 
     try {
       await wallet.send(receiver, amount * 1e8, {
-        feeRate: 400
+        feeRate: 400,
       })
-  
+
       this.setState({ tip: 'done' })
     } catch (err) {
       console.log(err)
@@ -115,20 +125,10 @@ class App extends React.Component<IProps, IState> {
 
   }
 
-  public render() {
-
-    const { mnemonic, wallet } = this.state
-
-    return (
-      <div>
-        <input type="text" onChange={this.handleInputChange} value={mnemonic} />
-        <button onClick={this.handleRecover}>
-          create wallet
-        </button>
-
-        {wallet && this.renderWallet()}
-      </div>
-    )
+  private async getWalletInfo() {
+    const wallet = this.state.wallet!
+    const info = await wallet.getInfo()
+    this.setState({info, tip: ''})
   }
 
   private handleInputChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {

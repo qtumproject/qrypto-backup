@@ -7,8 +7,8 @@ window.addEventListener('message', handleContentScriptMessage, false)
 // expose apis
 Object.assign(window, {
   qtum: {
-    sendToAddress
-  }
+    sendToAddress,
+  },
 })
 
 const origin = location.origin

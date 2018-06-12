@@ -26,10 +26,10 @@ export function handleSendToAddressResponse(response: ISendQtumResponsePayload) 
 
   if (response.error != null) {
     request.reject(response.error)
-    
+
     return
   }
-  console.log("转账成功")
+  console.log('转账成功')
   request.resolve(response.result)
 }
 
