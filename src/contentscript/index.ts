@@ -82,7 +82,7 @@ async function handleSendQtumMessage(message: ISendQtumRequestPayload) {
 
   if (mnemonic == null) {
     responseExtensionAPI<ISendQtumResponsePayload>({
-      type: API_TYPE.SEND_QTUM_RESPONSET,
+      type: API_TYPE.SEND_QTUM_RESPONSE,
       payload: {
         id: message.id,
         error: 'cannot find mnemonic',
@@ -98,7 +98,7 @@ async function handleSendQtumMessage(message: ISendQtumRequestPayload) {
   })
 
   responseExtensionAPI<ISendQtumResponsePayload>({
-    type: API_TYPE.SEND_QTUM_RESPONSET,
+    type: API_TYPE.SEND_QTUM_RESPONSE,
     payload: {
       id: message.id, result,
     },

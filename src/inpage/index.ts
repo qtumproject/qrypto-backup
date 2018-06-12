@@ -27,7 +27,7 @@ function handleContentScriptMessage(event: MessageEvent) {
 
   const message: IExtensionAPIMessage<any> = data.message
   switch (message.type) {
-    case API_TYPE.SEND_QTUM_RESPONSET:
+    case API_TYPE.SEND_QTUM_RESPONSE:
       handleSendToAddressResponse(message.payload)
       return
     default:

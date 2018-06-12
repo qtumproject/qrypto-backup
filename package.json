@@ -9,9 +9,7 @@
   },
   "devDependencies": {
     "@ceoimon/typed-css-modules": "^0.0.1",
-    "@types/bip39": "^2.4.0",
     "@types/chrome": "^0.0.63",
-    "@types/ethereumjs-util": "^5.1.0",
     "@types/react": "^16.0.41",
     "@types/react-dom": "^16.0.4",
     "autoprefixer": "^8.2.0",
@@ -34,13 +32,10 @@
     "webpack": "3.11.0"
   },
   "dependencies": {
-    "bip39": "^2.5.0",
     "chrome-call": "^3.0.0",
-    "ethereumjs-util": "^5.1.5",
-    "ethers": "^3.0.8",
+    "qtumjs-wallet": "^0.0.6",
     "react": "^16.2.0",
-    "react-dom": "^16.2.0",
-    "wallet.ts": "^0.2.5"
+    "react-dom": "^16.2.0"
   },
   "version": "0.0.0",
   "private": true
