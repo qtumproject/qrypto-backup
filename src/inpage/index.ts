@@ -1,15 +1,11 @@
 import { IExtensionMessageData, IExtensionAPIMessage } from '../types'
 import { TARGET_NAME, API_TYPE } from '../constants'
-import { signMessage, handleSignMessageResponse } from './signMesage'
 import { sendToAddress, handleSendToAddressResponse } from './sendToAddress'
 
 window.addEventListener('message', handleContentScriptMessage, false)
 
 // expose apis
 Object.assign(window, {
-  myExtensionApis: {
-    signMessage,
-  },
   qtum: {
     sendToAddress
   }
@@ -31,9 +27,6 @@ function handleContentScriptMessage(event: MessageEvent) {
 
   const message: IExtensionAPIMessage<any> = data.message
   switch (message.type) {
-    case API_TYPE.SIGN_MESSAGE_RESPONSE:
-      handleSignMessageResponse(message.payload)
-      return
     case API_TYPE.SEND_QTUM_RESPONSET:
       handleSendToAddressResponse(message.payload)
       return
