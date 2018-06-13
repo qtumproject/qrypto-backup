@@ -14,7 +14,7 @@ Start hot-reload compiling:
 yarn start
 ```
 
-Install the unpacked extension:
+Install the `dist` directory as unpacked extension:
 
 See [Getting Started Tutorial](https://developer.chrome.com/extensions/getstarted#manifest)
 
